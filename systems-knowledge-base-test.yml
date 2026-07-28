@@ -1,0 +1,25 @@
+# systems-knowledge-base-test — PR gate. Runs the vault health checks.
+# Attach this pipeline to a Build Validation branch policy on `main`; Azure Repos ignores
+# YAML `pr:` triggers, so the policy is what queues this on a pull request.
+# No CI trigger and no companion publish pipeline: this vault releases nothing.
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  pythonVersion: "3.12"
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: $(pythonVersion)
+
+  - script: |
+      python -m pip install -U pip
+      pip install pytest pyyaml
+    displayName: Install test dependencies
+
+  - script: python -m pytest tests/ -v
+    displayName: Vault health
